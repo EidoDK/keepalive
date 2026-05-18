@@ -13,17 +13,21 @@
 # Fallback:
 #   ping  -> heartbeat pulse only
 #
-# Optional logging:
-# - CSV telemetry
-# - response times
-# - status and exit codes
+# Runtime modes:
+#   silent      -> exit codes only
+#   interactive -> doctor-style output
+#   logging     -> CSV telemetry
 #
+# Optional container deployment:
+#   Docker-supported for portable appliance monitoring
+#   
 # Exit codes:
 #   0 = appliance reachable
 #   1 = appliance problem
 #   2-6 = script/runtime problem
 #
 # Deep sleep is a privilege, not a right.
+# Not even CPR is a blanket guarantee.
 ##############################################################################
 
 TIMEOUT=20

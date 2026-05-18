@@ -97,6 +97,101 @@ Log subsystem failures:
 
 - stderr
 
+### Docker
+
+I wanted universal scripting and eventually thought:
+
+*"Why the heck not?"*
+
+Pop the hospital in a bag and take it with you.
+
+Build:
+
+```bash
+docker build -t keepalive .
+```
+
+Run:
+
+```bash
+docker compose up -d
+```
+
+Example `docker-compose.yml`:
+
+```yaml
+services:
+  keepalive:
+    image: ghcr.io/eidodk/keepalive:latest
+    container_name: keepalive
+    restart: unless-stopped
+
+    environment:
+      TARGET: "192.168.1.100"
+      INTERVAL: "21600"
+      LOGFILE: "/tmp/heartbeat.log"
+
+    # optional persistent logs:
+    #
+    # volumes:
+    #   - ./logs:/data
+    #
+    # then set:
+    #
+    # LOGFILE: "/data/heartbeat.log"
+```
+
+Testing:
+
+```bash
+docker run --rm \
+-e TARGET=192.168.1.100 \
+-e INTERVAL=60 \
+keepalive
+```
+
+Environment variables:
+
+| Variable | Purpose | Default |
+|---|---|---|
+| `TARGET` | Appliance IP or URL | required |
+| `INTERVAL` | Seconds between observations | `21600` |
+| `LOGFILE` | Internal log path | `/tmp/heartbeat.log` |
+
+Volumes are optional.
+
+Without a mounted volume, logs remain inside the container and disappear
+when the container is removed.
+
+Example with persistent logs:
+
+```bash
+docker run -d \
+-e TARGET=192.168.1.100 \
+-e LOGFILE=/data/heartbeat.log \
+-v ./logs:/data \
+keepalive
+```
+
+Example without volumes:
+
+```bash
+docker run -d \
+-e TARGET=192.168.1.100 \
+keepalive
+```
+
+Docker allows multiple isolated keepalive instances:
+
+```text
+printer
+NAS
+camera
+mysterious appliance in corner
+```
+
+One container per patient.
+
 ### Exit codes
 
 - `0` = appliance reachable
@@ -114,15 +209,21 @@ Log subsystem failures:
 
 A: You don't optimize for elegance at 3am.  
    You optimize for "works on the weird box in the corner."
-   
+
+**Q: Why Docker?**
+
+A: I wanted universal scripting and eventually thought:
+
+   "Why the heck not?"
+   Pop the hospital in a bag and take it with you.
+
 **Q: Does this guarantee device availability?**
 
-A: No.
-
-This attempts to generate traffic and collect telemetry.
-Some devices still wander into digital limbo anyway.
+A: No.  
+   This attempts to generate traffic and collect telemetry.  
+   Some devices still wander into digital limbo anyway.
 
 **Q: Why not ARP?**
 
-A: Because heartbeat traffic and fallback behavior turned out to be
-more useful than assumptions and less dependent on implementation details.
+A: Because heartbeat traffic and fallback behavior turned out to
+   be more useful than assumptions.

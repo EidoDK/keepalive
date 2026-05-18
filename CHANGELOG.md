@@ -1,5 +1,29 @@
 # Changelog
 
+## v1.1.0
+
+### Added
+
+- Docker container support
+- Docker entrypoint runtime wrapper
+- Docker Compose deployment
+- Runtime environment variables:
+  - TARGET
+  - INTERVAL
+  - LOGFILE
+- Portable "hospital in a bag" deployment support
+
+### Changed
+
+- README expanded with Docker documentation
+- Logging behavior documented for container environments
+- Deployment model expanded from shell-only to shell + container
+
+### Notes
+
+- One container per patient.
+
+
 ## v1.0.1
 
 Contract precision update.
