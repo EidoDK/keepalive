@@ -25,6 +25,7 @@
 #
 # Deep sleep is a privilege, not a right.
 ##############################################################################
+
 TIMEOUT=20
 
 usage() {
@@ -34,8 +35,8 @@ Universal network life support system
 Deep sleep is a privilege, not a right
 Not even CPR is a blanket guarantee!
 
-Usage:    $0 -t TARGET [-l LOGFILE]
-          (You can spell out --target or --log, but smart lazy is still smart)
+Usage:    $0 -t TARGET [-l LOGFILE] [-i]
+          (You can spell out --target, --log or --interactive)
 
 Example:  $0 -t 192.168.1.100 [-l "./heartbeat.log"]
           Swiiings and roundabouts, my friend!
@@ -43,21 +44,49 @@ Example:  $0 -t 192.168.1.100 [-l "./heartbeat.log"]
 curl:     response time + HTTP codes
 
 ping:     universal fallback, heartbeat pulse only.
-		   
+
 Note:     TARGET must NOT include http:// or https://
           No log means silent mode; use exit code for status.
+          Use -i for interactive doctor-style status.
           Runtime output is written to log when enabled.
- 
+
 I may be a tool, but I am not an oracle.
 Drama is for movies, not schedulers.
 EOF
 }
 
+output_handling() {
+    TYPE="$1"
+    MSG="$2"
+    CODE="$3"
+
+    case "$TYPE" in
+        user)
+            usage >&2
+            printf '\nERROR: %s\n' "$MSG" >&2
+            exit "$CODE"
+            ;;
+
+        runtime)
+            STATUS="$MSG"
+            MODE="!"
+            RC="$CODE"
+            HTTP_CODE="N/A"
+            TIME_TOTAL="N/A"
+            ;;
+
+        logsystem)
+            printf 'ERROR: %s\n' "$MSG" >&2
+            exit "$CODE"
+            ;;
+    esac
+}
+
 run_ping() {
 # "You can check out anytime you want,
 # but you can never leave."
-    	
-	PING="${PING:-ping}"
+
+    PING="${PING:-ping}"
 
     if ! command -v "$PING" >/dev/null 2>&1; then
         return 127
@@ -76,6 +105,7 @@ run_ping() {
 
     PING_OUT="$("$PING" "$PING_COUNT" 1 "$HOST" 2>/dev/null)"
     PING_RC=$?
+
     case "$(uname -s 2>/dev/null)" in
         MINGW*|MSYS*|CYGWIN*)
             printf '%s\n' "$PING_OUT" | grep -q "Reply from $HOST: bytes="
@@ -102,29 +132,27 @@ while [ "$#" -gt 0 ]; do
             LOG="$2"
             shift 2
             ;;
+        --interactive|-i)
+            INTERACTIVE=1
+            shift
+            ;;
         --help|-h)
             usage
             exit 0
             ;;
         *)
-            usage >&2
-            printf '\nERROR: Unknown option: %s\n' "$1" >&2
-            exit 1
+            output_handling user "Unknown option: $1" 1
             ;;
     esac
 done
 
 if [ -z "$URL" ]; then
-    usage >&2
-    printf '\nERROR: Missing -t\n' >&2
-    exit 1
+    output_handling user "Missing -t" 1
 fi
 
 case "$URL" in
     http://*|https://*)
-        usage >&2
-        printf '\nERROR: TARGET must not include http:// or https://\n' >&2
-        exit 1
+        output_handling user "TARGET must not include http:// or https://" 1
         ;;
 esac
 
@@ -139,16 +167,16 @@ if [ -z "$LOG" ]; then
     LOG="/dev/null"
 fi
 
+INTERACTIVE="${INTERACTIVE:-0}"
+
 LOG_DIR="$(dirname "$LOG")"
 
 if [ ! -d "$LOG_DIR" ]; then
-    printf 'ERROR: Log directory does not exist: %s\n' "$LOG_DIR" >&2
-    exit 3
+    output_handling logsystem "Log directory does not exist: $LOG_DIR" 3
 fi
 
 if [ ! -w "$LOG_DIR" ]; then
-    printf 'ERROR: Log directory is not writable: %s\n' "$LOG_DIR" >&2
-    exit 4
+    output_handling logsystem "Log directory is not writable: $LOG_DIR" 4
 fi
 
 DATE="$(date '+%Y-%m-%d')"
@@ -203,13 +231,12 @@ if command -v "$CURL" >/dev/null 2>&1; then
             PING_RC=$?
 
             case "$PING_RC" in
-
                 0)
                     STATUS="Service unavailable, network alive"
                     MODE="p"
                     ;;
                 127)
-                    STATUS="Service failed, ping unavailable"
+                    output_handling runtime "Service failed, ping unavailable" 2
                     ;;
                 *)
                     case "$RC" in
@@ -247,14 +274,15 @@ else
     TIME_TOTAL="N/A"
 
     case "$RC" in
-        0)   STATUS="Ping OK" ;;
+        0)
+            STATUS="Ping OK"
+            ;;
         127)
-             usage >&2
-             printf '\n\nWHOOPS, curl AND ping missing.\n\n' >&2
-             printf 'Invisibility is a skill, not a tool!\n' >&2
-             exit 2
-             ;;
-        *)   STATUS="Ping failed" ;;
+            output_handling runtime "curl and ping missing" 2
+            ;;
+        *)
+            STATUS="Ping failed"
+            ;;
     esac
 fi
 
@@ -267,11 +295,12 @@ if [ ! -f "$LOG" ]; then
     fi
 
     if ! printf 'script,"%s","log initialized"\n' "$SCRIPT_PATH" >> "$LOG"; then
-        printf 'ERROR: Could not create log file: %s\n' "$LOG" >&2
-        exit 5
+        output_handling logsystem "Could not create log file: $LOG" 5
     fi
 
-    printf 'date,time,mode(c/p),target,status,http_code,exit_code,response_time\n' >> "$LOG"
+    if ! printf 'date,time,mode(c/p),target,status,http_code,exit_code,response_time\n' >> "$LOG"; then
+        output_handling logsystem "Could not write log header: $LOG" 6
+    fi
 fi
 
    #    o
@@ -293,8 +322,30 @@ if ! printf '%s,%s,%s,"%s","%s",%s,%s,%s\n' \
     "$RC" \
     "$TIME_TOTAL" >> "$LOG"
 then
-    printf 'ERROR: Could not write to log file: %s\n' "$LOG" >&2
-    exit 6
+    output_handling logsystem "Could not write to log file: $LOG" 6
+fi
+
+if [ "$INTERACTIVE" = "1" ]; then
+    case "$STATUS" in
+        "OK"|"Ping OK"|"Service unavailable, network alive")
+            printf '\nDoctor:\n'
+            printf 'Patient: %s\n' "$URL"
+            printf 'Condition: stable\n'
+            printf 'Diagnosis: %s\n' "$STATUS"
+
+            if [ "$HTTP_CODE" != "N/A" ]; then
+                printf 'Vitals: HTTP=%s Response=%ss\n' \
+                    "$HTTP_CODE" "$TIME_TOTAL"
+            fi
+            ;;
+        *)
+            printf '\nDoctor:\n'
+            printf 'Patient: %s\n' "$URL"
+            printf 'Condition: requires attention\n'
+            printf 'Diagnosis: %s\n' "$STATUS"
+            printf 'Exit code: %s\n' "$RC"
+            ;;
+    esac
 fi
 
 case "$STATUS" in
@@ -302,6 +353,13 @@ case "$STATUS" in
         exit 0
         ;;
     *)
-        exit 1
+        case "$RC" in
+            2|3|4|5|6)
+                exit "$RC"
+                ;;
+            *)
+                exit 1
+                ;;
+        esac
         ;;
 esac
