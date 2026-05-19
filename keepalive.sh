@@ -42,7 +42,7 @@ Not even CPR is a blanket guarantee!
 Usage:    $0 -t TARGET [-l LOGFILE] [-i]
           (You can spell out --target, --log or --interactive)
 
-Example:  $0 -t 192.168.1.100 [-l "./heartbeat.log"]
+Example:  $0 -t 192.168.1.100 [-l "./heartbeat.csv"]
           Swiiings and roundabouts, my friend!
 
 curl:     response time + HTTP codes
@@ -93,7 +93,7 @@ run_ping() {
     PING="${PING:-ping}"
 
     if ! command -v "$PING" >/dev/null 2>&1; then
-        return 127
+        return 2
     fi
 
     HOST="$URL"
@@ -128,11 +128,35 @@ fi
 
 while [ "$#" -gt 0 ]; do
     case "$1" in
+        #     O_o
+        #    /|\
+        #    / \
+        #
+        # Future me discovered that users can be... creative.
+        #
+        # Examples observed in the wild:
+        #
+        #   ./keepalive.sh -t
+        #   ./keepalive.sh -i -t
+        #   ./keepalive.sh -t -l -i
+        #   ./keepalive.sh -i -t 192.168.1.100 -l
+        #
+        # Let's see if I can figure out what he means...
+        #
         --target|-t)
+            if [ "$#" -lt 2 ] || [ -z "$2" ] || [ "${2#-}" != "$2" ]; then
+                output_handling user "-t requires a target value" 1
+            fi
+
             URL="$2"
             shift 2
             ;;
+
         --log|-l)
+            if [ "$#" -lt 2 ] || [ -z "$2" ] || [ "${2#-}" != "$2" ]; then
+                output_handling user "-l requires a log filename" 1
+            fi
+
             LOG="$2"
             shift 2
             ;;
@@ -173,14 +197,17 @@ fi
 
 INTERACTIVE="${INTERACTIVE:-0}"
 
-LOG_DIR="$(dirname "$LOG")"
+if [ "$LOG" != "/dev/null" ]; then
 
-if [ ! -d "$LOG_DIR" ]; then
-    output_handling logsystem "Log directory does not exist: $LOG_DIR" 3
-fi
+    LOG_DIR="$(dirname "$LOG")"
 
-if [ ! -w "$LOG_DIR" ]; then
-    output_handling logsystem "Log directory is not writable: $LOG_DIR" 4
+    if [ ! -d "$LOG_DIR" ]; then
+        output_handling logsystem "Log directory does not exist: $LOG_DIR" 3
+    fi
+
+    if [ ! -w "$LOG_DIR" ]; then
+        output_handling logsystem "Log directory is not writable: $LOG_DIR" 4
+    fi
 fi
 
 DATE="$(date '+%Y-%m-%d')"
@@ -207,7 +234,7 @@ if command -v "$CURL" >/dev/null 2>&1; then
 
     CURL_URL="http://$URL"
 
-    RESULT="$($CURL -k -s -o /dev/null \
+    RESULT="$($CURL -s -o /dev/null \
         -w "%{http_code} %{time_total}" \
         --max-time "$TIMEOUT" \
         "$CURL_URL" 2>/dev/null)"
@@ -239,7 +266,7 @@ if command -v "$CURL" >/dev/null 2>&1; then
                     STATUS="Service unavailable, network alive"
                     MODE="p"
                     ;;
-                127)
+                2)
                     output_handling runtime "Service failed, ping unavailable" 2
                     ;;
                 *)
@@ -281,7 +308,7 @@ else
         0)
             STATUS="Ping OK"
             ;;
-        127)
+        2)
             output_handling runtime "curl and ping missing" 2
             ;;
         *)
@@ -290,7 +317,7 @@ else
     esac
 fi
 
-if [ ! -f "$LOG" ]; then
+if [ ! -e "$LOG" ]; then
 
     if command -v readlink >/dev/null 2>&1; then
         SCRIPT_PATH="$(readlink -f "$0" 2>/dev/null || printf '%s\n' "$0")"
@@ -329,10 +356,25 @@ then
     output_handling logsystem "Could not write to log file: $LOG" 6
 fi
 
+case "$STATUS" in
+    "OK"|"Ping OK"|"Service unavailable, network alive")
+        EXIT_CODE=0
+        ;;
+    *)
+        case "$RC" in
+            2|3|4|5|6)
+                EXIT_CODE="$RC"
+                ;;
+            *)
+                EXIT_CODE=1
+                ;;
+        esac
+        ;;
+esac
+
 if [ "$INTERACTIVE" = "1" ]; then
     case "$STATUS" in
         "OK"|"Ping OK"|"Service unavailable, network alive")
-            printf '\nDoctor:\n'
             printf 'Patient: %s\n' "$URL"
             printf 'Condition: stable\n'
             printf 'Diagnosis: %s\n' "$STATUS"
@@ -343,11 +385,10 @@ if [ "$INTERACTIVE" = "1" ]; then
             fi
             ;;
         *)
-            printf '\nDoctor:\n'
             printf 'Patient: %s\n' "$URL"
             printf 'Condition: requires attention\n'
             printf 'Diagnosis: %s\n' "$STATUS"
-            printf 'Exit code: %s\n' "$RC"
+            printf 'Exit code: %s\n' "$EXIT_CODE"
             ;;
     esac
 fi

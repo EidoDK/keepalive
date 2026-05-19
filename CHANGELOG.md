@@ -1,5 +1,24 @@
 # Changelog
 
+## v1.1.1 – CPR certification renewed
+
+Still no changes in functionality. Why change what works.
+It's more important to focus on what DOESN'T work.
+
+### Changes
+- Taught the script that `-t` without a target is not a philosophical statement
+- Fixed ping/curl disagreement during emergencies
+- Added extra protection against creative command-line archaeology
+- Improved log initialization handling
+- Example output now uses `.csv`, because pretending otherwise became exhausting
+- Continued attempts at keeping firmware-induced coma patients among the living
+
+### Notes
+
+> Deep sleep is a privilege, not a right.
+>
+> Not even CPR is a blanket guarantee.
+
 ## v1.1.0
 
 ### Added
@@ -70,6 +89,7 @@ Verified on:
 - Debian WSL
 - Fedora WSL
 - Kali WSL
+- Windows with scripting environment
 
 No guarantees.
 No magic.
