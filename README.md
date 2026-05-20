@@ -223,6 +223,23 @@ A: No.
    This attempts to generate traffic and collect telemetry.  
    Some devices still wander into digital limbo anyway.
 
+**Q: Can I specify a port?**
+
+A: Yes.
+
+Examples:
+
+```bash
+-t 192.168.1.100:9000
+-t printer.local:8080
+```
+
+When specifying `host:port`, the service endpoint becomes the primary health target.
+
+Ping fallback validates host reachability and may not behave as expected for `host:port` targets.
+
+If a known service on a specific port stops responding, that is usually the condition you want to detect.
+
 **Q: Why not ARP?**
 
 A: Because heartbeat traffic and fallback behavior turned out to
