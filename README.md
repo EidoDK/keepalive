@@ -53,7 +53,7 @@ date,time,mode(c/p),target,status,http_code,exit_code,response_time
 
 ### Optional interactive mode
 
-Provides human-readable doctor-style status output.
+Use -i when staring at logs becomes emotionally exhausting.
 
 Example:
 
@@ -64,7 +64,6 @@ Example:
 Output:
 
 ```text
-Doctor:
 Patient: 192.168.1.100
 Condition: stable
 Diagnosis: OK
