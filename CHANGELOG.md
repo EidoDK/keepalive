@@ -1,23 +1,46 @@
 # Changelog
 
+## v1.1.2 - Docker learned what a real clock looks like
+
+### Added
+
+- Optional timezone support for Docker containers via `TZ`
+
+### Changed
+
+- Container log timestamps can now follow local time instead of UTC
+- Dockerfile now includes `tzdata`
+- docker-compose.yml introduces `TZ` environment variable support
+
+### Notes
+
+- No `keepalive.sh` logic changes
+- Reality remains optional. UTC is still the default.
+- Realized that Docker doesn't know how a real clock looks, finally taught it.
+
+
 ## v1.1.1 – CPR certification renewed
 
-Still no changes in functionality. Why change what works.
+Still no changes in functionality. Why change what works.  
 It's more important to focus on what DOESN'T work.
 
-### Changes
+### Added
+
+- Extra protection against creative command-line archaeology
+- Improved log initialization behavior
+
+### Changed
+
 - Taught the script that `-t` without a target is not a philosophical statement
 - Fixed ping/curl disagreement during emergencies
-- Added extra protection against creative command-line archaeology
-- Improved log initialization handling
 - Example output now uses `.csv`, because pretending otherwise became exhausting
 - Continued attempts at keeping firmware-induced coma patients among the living
 
 ### Notes
 
-> Deep sleep is a privilege, not a right.
->
-> Not even CPR is a blanket guarantee.
+- Deep sleep is a privilege, not a right.
+- Not even CPR is a blanket guarantee.
+
 
 ## v1.1.0
 
@@ -47,31 +70,34 @@ It's more important to focus on what DOESN'T work.
 
 Contract precision update.
 
-This release does not redesign functionality.
-It tightens communication behavior and adds an optional
-interactive mode.
+This release does not redesign functionality.  
+It tightens communication behavior and adds an optional interactive mode.
 
-Changes:
+### Added
 
-- Added centralized `output_handling()`
-- Clarified runtime/output behavior
+- Centralized `output_handling()`
 - Added `-i` / `--interactive`
 - Interactive doctor-style status output
+
+### Changed
+
+- Clarified runtime/output behavior
 - Runtime edge cases converted to structured status events
 - Removed runtime help/output noise
 
-No protocol changes.
-No scheduler changes.
-No telemetry format changes.
+### Notes
 
-Deep sleep is still a privilege, not a right.
+- No protocol changes
+- No scheduler changes
+- No telemetry format changes
+- Deep sleep is still a privilege, not a right.
 
 
 ## v1.0.0
 
 Initial public release.
 
-Features:
+### Features
 
 - curl-based keepalive with HTTP response timing
 - ping fallback heartbeat
@@ -82,7 +108,7 @@ Features:
 - BusyBox / ash compatibility
 - GitHub public release
 
-Verified on:
+### Verified on
 
 - Synology BusyBox / ash
 - Ubuntu WSL
@@ -91,6 +117,8 @@ Verified on:
 - Kali WSL
 - Windows with scripting environment
 
-No guarantees.
-No magic.
+### Notes
+
+No guarantees.  
+No magic.  
 Just telemetry, persistence, and mild stubbornness.

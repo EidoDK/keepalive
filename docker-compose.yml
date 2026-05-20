@@ -8,7 +8,8 @@ services:
       TARGET: "192.168.1.100"          # Edit to change patient
       INTERVAL: "21600"                # How often do you do rounds (21600 = every 6 hours)
       LOGFILE: "/logs/keepalive.log"   # Where do you keep this journal
-
+      TZ: "Europe/Copenhagen"          # Containers can actually tell time
+      
     # persistent logs:
     volumes:
       - ./logs:/logs

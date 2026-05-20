@@ -1,6 +1,6 @@
 FROM alpine:latest
 
-RUN apk add --no-cache curl iputils
+RUN apk add --no-cache curl iputils tzdata
 
 COPY keepalive.sh /usr/local/bin/keepalive.sh
 COPY docker-entrypoint.sh /usr/local/bin/docker-entrypoint.sh
