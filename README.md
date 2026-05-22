@@ -26,6 +26,25 @@ IP-connected appliances reachable during extended idle periods.
 `curl`  
 HTTP response + timing + stronger keepalive effect
 
+### Explicit ports
+
+Targets may include explicit ports:
+
+```bash
+./keepalive.sh -t 192.168.1.100:8080
+```
+
+> [!WARNING]
+>
+> Most appliances are best observed through their normal service endpoints.
+>
+> Some appliances may interpret probe traffic as valid input.
+>
+> If your keepalive strategy starts consuming paper,
+> consider planting trees first.
+>
+> Swiiings and roundabouts, my friend!
+
 ### Fallback
 
 `ping`  
@@ -50,6 +69,15 @@ script,"./keepalive.sh","log initialized"
 date,time,mode(c/p),target,status,http_code,exit_code,response_time
 2026-05-18,01:00:02,c,"192.168.1.100","OK",307,0,0.195250
 ```
+
+### Capacity planning for logging
+
+Let's be realistic...
+
+Current projections estimate approximately 10 MB of log growth
+before the Sun burns out.
+
+Infrastructure teams are monitoring the situation closely.
 
 ### Optional interactive mode
 
