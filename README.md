@@ -107,6 +107,12 @@ Interactive mode can be combined with logging:
 Doctor speaks.  
 Journal writes.
 
+> [!NOTE]
+>
+> A patient yelling "wrong room!" still counts as consciousness.
+>
+> Response codes primarily serve telemetry purposes. Presence of a response often matters more than correctness.
+
 ### Runtime behavior
 
 Input errors:
