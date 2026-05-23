@@ -277,3 +277,15 @@ If a known service on a specific port stops responding, that is usually the cond
 
 A: Because heartbeat traffic and fallback behavior turned out to
    be more useful than assumptions.
+
+**Q: Does this support IPv6?**
+
+A: Yes. And perhaps no.
+
+The doctor was originally never taught the specifics of IPv6.
+
+If `curl` and `ping` accept the target, the doctor generally avoids arguments and just does his thing.
+
+Results may vary.
+
+Built for weird boxes in corners, not huge server farms in Idaho.
