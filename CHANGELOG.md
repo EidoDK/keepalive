@@ -1,6 +1,6 @@
 # Changelog
 
-## v1.1.3
+## v1.1.3 - Doctors can now name their patients
 
 ### Added
 - Optional `KEEPALIVE_NAME` environment variable for custom log source identification.
@@ -58,7 +58,7 @@ It's more important to focus on what DOESN'T work.
 - Not even CPR is a blanket guarantee.
 
 
-## v1.1.0
+## v1.1.0 - Hospital in a bag introduced
 
 ### Added
 
@@ -82,7 +82,7 @@ It's more important to focus on what DOESN'T work.
 - One container per patient.
 
 
-## v1.0.1
+## v1.0.1 - Users can be exhausting
 
 Contract precision update.
 
@@ -109,7 +109,7 @@ It tightens communication behavior and adds an optional interactive mode.
 - Deep sleep is still a privilege, not a right.
 
 
-## v1.0.0
+## v1.0.0 - We're alive.
 
 Initial public release.
 
