@@ -1,5 +1,21 @@
 # Changelog
 
+## v1.1.3
+
+### Added
+- Optional `KEEPALIVE_NAME` environment variable for custom log source identification.
+- Docker Compose example updated with optional patient naming.
+
+### Changed
+- Log initialization now supports human-readable appliance identities.
+- Script path remains default source when no override is supplied.
+
+### Notes
+- Still no functional changes.
+- Just quality-of-life improvements.
+- Still mildly stubborn.
+
+
 ## v1.1.2 - Docker learned what a real clock looks like
 
 ### Added

@@ -65,7 +65,7 @@ Example:
 Produces:
 
 ```text
-script,"./keepalive.sh","log initialized"
+source,"./keepalive.sh","log initialized"
 date,time,mode(c/p),target,status,http_code,exit_code,response_time
 2026-05-18,01:00:02,c,"192.168.1.100","OK",307,0,0.195250
 ```
@@ -160,9 +160,13 @@ services:
     restart: unless-stopped
 
     environment:
-      TARGET: "192.168.1.100"
-      INTERVAL: "21600"
-      LOGFILE: "/tmp/heartbeat.log"
+      TARGET: "192.168.1.100"        # Edit to change patient
+      INTERVAL: "21600"              # How often do you do rounds (21600 = every 6 hours)
+      LOGFILE: "/tmp/heartbeat.log"  # Where do you keep this journal
+      TZ: "Europe/Copenhagen"        # Containers can actually tell time
+
+      # Optional:
+      # KEEPALIVE_NAME: "Annoying sleeping patient"
 
     # optional persistent logs:
     #
@@ -190,6 +194,7 @@ Environment variables:
 | `TARGET` | Appliance IP or URL | required |
 | `INTERVAL` | Seconds between observations | `21600` |
 | `LOGFILE` | Internal log path | `/tmp/heartbeat.log` |
+| `KEEPALIVE_NAME` | Optional in-log patient identification | script path |
 
 Volumes are optional.
 
@@ -224,6 +229,7 @@ mysterious appliance in corner
 ```
 
 One container per patient.
+Optional patient naming may also be used for clearer log identification.
 
 ### Exit codes
 

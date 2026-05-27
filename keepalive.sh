@@ -20,7 +20,10 @@
 #
 # Optional container deployment:
 #   Docker-supported for portable appliance monitoring
-#   
+#
+# Optional identity:
+#   KEEPALIVE_NAME -> source name written when log is initialized
+#
 # Exit codes:
 #   0 = appliance reachable
 #   1 = appliance problem
@@ -53,6 +56,7 @@ Note:     TARGET must NOT include http:// or https://
           No log means silent mode; use exit code for status.
           Use -i for interactive doctor-style status.
           Runtime output is written to log when enabled.
+          KEEPALIVE_NAME may be used to identify the log source.
 
 I may be a tool, but I am not an oracle.
 Drama is for movies, not schedulers.
@@ -160,14 +164,17 @@ while [ "$#" -gt 0 ]; do
             LOG="$2"
             shift 2
             ;;
+
         --interactive|-i)
             INTERACTIVE=1
             shift
             ;;
+
         --help|-h)
             usage
             exit 0
             ;;
+
         *)
             output_handling user "Unknown option: $1" 1
             ;;
@@ -180,7 +187,7 @@ fi
 
 case "$URL" in
     http://*|https://*)
-        output_handling user "TARGET must not include http:// or https://" 1
+        output_handling user "TARGET must not include http:// or https://" 6
         ;;
 esac
 
@@ -252,9 +259,11 @@ if command -v "$CURL" >/dev/null 2>&1; then
         0)
             STATUS="OK"
             ;;
+
         6)
             STATUS="DNS lookup failed"
             ;;
+
         7|28|52|56)
             # Sonar detecting entity, entity identified!
 
@@ -279,6 +288,7 @@ if command -v "$CURL" >/dev/null 2>&1; then
                     ;;
             esac
             ;;
+
         *)
             STATUS="Unknown error"
             ;;
@@ -319,13 +329,15 @@ fi
 
 if [ ! -e "$LOG" ]; then
 
-    if command -v readlink >/dev/null 2>&1; then
-        SCRIPT_PATH="$(readlink -f "$0" 2>/dev/null || printf '%s\n' "$0")"
+    if [ -n "$KEEPALIVE_NAME" ]; then
+        LOG_SOURCE="$KEEPALIVE_NAME"
+    elif command -v readlink >/dev/null 2>&1; then
+        LOG_SOURCE="$(readlink -f "$0" 2>/dev/null || printf '%s\n' "$0")"
     else
-        SCRIPT_PATH="$0"
+        LOG_SOURCE="$0"
     fi
 
-    if ! printf 'script,"%s","log initialized"\n' "$SCRIPT_PATH" >> "$LOG"; then
+    if ! printf 'source,"%s","log initialized"\n' "$LOG_SOURCE" >> "$LOG"; then
         output_handling logsystem "Could not create log file: $LOG" 5
     fi
 

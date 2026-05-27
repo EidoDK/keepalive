@@ -5,17 +5,24 @@ services:
     restart: unless-stopped
 
     environment:
-      TARGET: "192.168.1.100"          # Edit to change patient
-      INTERVAL: "21600"                # How often do you do rounds (21600 = every 6 hours)
-      LOGFILE: "/logs/keepalive.log"   # Where do you keep this journal
-      TZ: "Europe/Copenhagen"          # Containers can actually tell time
-      
-    # persistent logs:
+      TARGET: "192.168.1.100"        # Edit to change patient
+      INTERVAL: "21600"              # How often do you do rounds (21600 = every 6 hours)
+      LOGFILE: "/logs/keepalive.log" # Where do you keep this journal
+      TZ: "Europe/Copenhagen"        # Containers can actually tell time
+
+      # Optional:
+      # KEEPALIVE_NAME: "Annoying sleeping patient"
+
+    # Persistent logs
     volumes:
       - ./logs:/logs
 
     # Use custom log names for multiple patients:
+    # (one patient per container)
     #
     # LOGFILE: "/logs/camera.log"
     # LOGFILE: "/logs/doorbell.log"
     # LOGFILE: "/logs/whatever.log"
+    #
+    # KEEPALIVE_NAME may also be used for
+    # in-log patient identification.
