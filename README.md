@@ -79,6 +79,12 @@ before the Sun burns out.
 
 Infrastructure teams are monitoring the situation closely.
 
+Internal estimates further suggest that a 2 GB USB stick dedicated
+entirely to keepalive telemetry would likely remain operational
+for roughly 20,000 years.
+
+Storage engineers remain cautiously optimistic.
+
 ### Optional interactive mode
 
 Use -i when staring at logs becomes emotionally exhausting.
@@ -302,4 +308,4 @@ A: Possibly.
 
 Doctors tend to get uncomfortable with industrial lighting, but generally just do their job.
 
-Nurses however tend to scream alot more.
+Nurses however tend to scream a lot more.
