@@ -295,3 +295,11 @@ If `curl` and `ping` accept the target, the doctor generally avoids arguments an
 Results may vary.
 
 Built for weird boxes in corners, not huge server farms in Idaho.
+
+**Q: Okay, but CAN it run in a server farm in Idaho?**
+
+A: Possibly.
+
+Doctors tend to get uncomfortable with industrial lighting, but generally just do their job.
+
+Nurses however tend to scream alot more.
